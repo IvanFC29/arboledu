@@ -1,75 +1,50 @@
-import { View, Text, StyleSheet, Image, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, Image } from 'react-native';
 import Encabezado from '@/components/Encabezado'; 
 import Formulario from './Formulario';
 import { useState } from 'react';
 import { calcularImpacto } from '@/assets/utils/Calculos';
 
 const InicioCalc: React.FC = () => {
-  const [resultado, setResultado] = useState<{ CO2compensado: number; O2_generado: number} | null>(null);
+  const [resultado, setResultado] = useState<{ CO2compensado: number; O2_generado: number; especie:string; edad:number} | null>(null);
 
-  const handleCalcular = (numArbloles: number, tiempoAnios: number) => {
-    const res = calcularImpacto(numArbloles, tiempoAnios);
+  const handleCalcular = (especie: string, edad: number, altura: number, diametroTronco: number,frecuenciaRiego: string, plagasEnfermedades: boolean) => {
+    const res = calcularImpacto(especie, edad, altura, diametroTronco, frecuenciaRiego, plagasEnfermedades);
     setResultado(res);
   }
 
-    return (
-        <View style={styles.container}>
-          <Encabezado />
-          <View style={styles.imageContainer}>
-            <Image
-              source={require('@/assets/images/secciones/img-calculador-ecologico.png')} 
-              style={styles.image}
-            />
-            <Text style={styles.subtitle}>
-                Hola, sabes cuanto de oxigeno aportas al medio ambiente?
-                Con la calculadora ecológica puedes averiguarlo 
-                Responde a unas preguntas y sabrás el resultado
-            </Text>
-            <Formulario onCalcular={handleCalcular}/>
-
-            {resultado && (
-              <View style={styles.resultContainer}>
-                <Text style={styles.resultText}>🌱 CO₂ compensado: {resultado.CO2compensado.toFixed(2)} kg</Text>
-                <Text style={styles.resultText}>💨 Oxígeno generado: {resultado.O2_generado.toFixed(2)} kg</Text>
-              </View>
-            )}
+  return (
+    <View style={styles.container}>
+      <Encabezado />
+      <View style={styles.imageContainer}>
+        <Text style={styles.subtitle}>
+          *Los resultados son en base a un modelo de produccion de oxigeno *
+        </Text>
+        <Formulario onCalcular={handleCalcular}/>
+        {resultado && (
+          <View style={styles.resultContainer}>
+            <Text style={styles.resultText}>🌱 El arbol {resultado.especie} en {resultado.edad} años acumulo en todo su follaje un total de {resultado.CO2compensado.toFixed(2)} tn de carbono</Text>
+            <Text style={styles.resultText}>💨 El arbol {resultado.especie} esta produciendo aproximadamente {resultado.O2_generado.toFixed(2)} kg de oxigeno</Text>
           </View>
-        </View>
-    );
+        )}
+      </View>
+    </View>
+  );
 };
     
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    overflow: "scroll"
   },
   imageContainer: {
     alignItems: 'center',
     marginBottom: 24,
   },
-  image: {
-    width: 150,
-    height: 150,
-    marginBottom: 8,
-  },
   subtitle: {
     fontSize: 16,
     textAlign: 'center',
     color: '#333',
-  },
-  buttonsContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-  },
-  button: {
-    backgroundColor: '#68a357',
-    paddingVertical: 12,
-    paddingHorizontal: 20,
-    borderRadius: 8,
-  },
-  buttonText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: 'bold',
+    backgroundColor: '#ffe599',
   },
   resultContainer: {
     marginTop: 20,
