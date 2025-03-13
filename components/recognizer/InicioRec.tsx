@@ -6,7 +6,7 @@ import Encabezado from "../Encabezado";
 
 const InicioRec: React.FC = () => {
     const [imagenSelect, setImagenSelect] = useState<string | null>(null);
-    const [resultado, setResultado] = useState<any | null>(null);
+    const [resultado, setResultado] = useState<string | null>(null);
 
     const handleImageSelect = async () => {
         // Pedir permisos para acceder a la galería
@@ -28,6 +28,35 @@ const InicioRec: React.FC = () => {
         }
     };
 
+    function extraerPrimeraParte(cadena: string): string[] {
+        const resultados: string[] = [];
+        const elementos = cadena.split(" | "); // Dividir por " | "
+      
+        for (const elemento of elementos) {
+          const primeraParte = elemento.split("|")[0].trim(); // Dividir por "|" y tomar el primer elemento, eliminando espacios en blanco
+      
+          resultados.push(primeraParte);
+          break;
+        }
+      
+        return resultados;
+    }
+
+    const transformar = (data: any): string => {
+        if (!data || typeof data !== "object") return "No se encontraron datos.";
+    
+        if (!data.results || !Array.isArray(data.results)) return "No se encontraron resultados.";
+
+        // Extraer nombres comunes y científicos de los primeros resultados
+        const primerResultado = data.results.map((item: any) => item.species?.commonNames?.join(", ") || "Desconocido").join(" | ");
+        const segundoResultado = data.results.map((item: any) => item.species?.scientificName || "No identificado").join(" | ");
+
+        const nombrePlanta = extraerPrimeraParte(primerResultado);
+        const nombreCientifico = extraerPrimeraParte(segundoResultado) ;
+        // Formatear el string de salida
+        return ` ${nombrePlanta}\n📌 Nombre cientifico: ${nombreCientifico}`;
+    };
+    
     const handleIdentify = async () => {
         if (!imagenSelect) return;
     
@@ -49,7 +78,8 @@ const InicioRec: React.FC = () => {
             console.log("Tipo de res.data:", typeof res.data);  // 👀 Verifica el tipo en consola
             console.log("Contenido de res.data:", res.data);    // 🔍 Ver el contenido exacto
 
-            setResultado(JSON.stringify(res.data));
+            //setResultado(JSON.stringify(res.data));
+            setResultado(transformar(res.data));
         } catch (error) {
             console.error(error);
             setResultado('Error al identificar la planta');
@@ -86,8 +116,8 @@ const InicioRec: React.FC = () => {
 };
 
 const styles = StyleSheet.create({
-    scrollcontainer: { flex: 1, overflow: 'scroll'},
-    container: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: 20 },
+    scrollcontainer: { flex: 1,},
+    container: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: 20,  overflow: 'scroll'},
     parrafo: { fontSize: 16, textAlign: 'center', marginVertical: 10, backgroundColor: '#ffe599', },
     button: { backgroundColor: '#4CAF50', padding: 10, borderRadius: 5, marginVertical: 10 },
     buttonText: { color: 'white', fontSize: 16 },
